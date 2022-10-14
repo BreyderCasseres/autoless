@@ -1,0 +1,53 @@
+package tasks.vinculacionpnsolobanco;
+
+import net.serenitybdd.screenplay.Actor;
+import net.serenitybdd.screenplay.Task;
+import net.serenitybdd.screenplay.Tasks;
+import net.serenitybdd.screenplay.actions.JavaScriptClick;
+import net.serenitybdd.screenplay.actions.Upload;
+import net.serenitybdd.screenplay.questions.Enabled;
+import net.serenitybdd.screenplay.targets.Target;
+import net.serenitybdd.screenplay.waits.WaitUntil;
+import org.openqa.selenium.By;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isClickable;
+import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isNotCurrentlyVisible;
+import static userinterfaces.GeneralesPage.BTN_CONTINUAR;
+import static userinterfaces.GeneralesPage.LBL_CARGANDO;
+import static userinterfaces.ListadoDeDocumentosPage.RBTN_SIDESEAAGREGARORDENANTE;
+
+public class CargarDocumentosSinPreguntaOrdenante implements Task
+{
+
+    public static CargarDocumentosSinPreguntaOrdenante requeridos()
+    {
+        return Tasks.instrumented(CargarDocumentosSinPreguntaOrdenante.class);
+    }
+
+    @Override
+    public <T extends Actor> void performAs(T actor)
+    {
+        actor.attemptsTo(
+            WaitUntil.the(LBL_CARGANDO, isNotCurrentlyVisible()).forNoMoreThan(60).seconds()
+        );
+        Target LINK_ADJUNTARPDFINPUT = Target.the("Adjuntar pdf").located(By.xpath("(//input[@id='fileExplorer'])[1]"));
+        while(actor.asksFor(Enabled.of(LINK_ADJUNTARPDFINPUT)) == true)
+        {
+            Path fileToUpload = Paths.get("src/test/resources/documentos/DOCUMENTOS LESS PN/Cedula Natalia Carmona.pdf");
+            actor.attemptsTo(
+                    Upload.theFile(fileToUpload).to(LINK_ADJUNTARPDFINPUT)
+            );
+            LINK_ADJUNTARPDFINPUT = Target.the("Adjuntar pdf").located(By.xpath("(//input[@id='fileExplorer'])[1]"));
+        }
+        actor.attemptsTo(
+                WaitUntil.the(BTN_CONTINUAR, isClickable()).forNoMoreThan(120).seconds(),
+            JavaScriptClick.on(BTN_CONTINUAR)
+        );
+    }
+}
+
+
+       
